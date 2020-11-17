@@ -6,11 +6,12 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
-using Microsoft.WindowsAPICodePack.Net;
-
 
 // https://github.com/PowerShell/PowerShell/issues/7909
+// 107 MB
 // dotnet publish -o .\publish -r win10-x64 -p:PublishSingleFile=true --self-contained true
+// Reduced down to: 78 MB
+// dotnet publish -o .\publish -r win10-x64 -p:PublishSingleFile=true -p:PublishTrimmed=True -p:TrimMode=CopyUsed --self-contained true
 // Conditional compilation symbols: _PUBLISH_CHROMEDRIVER
 
 namespace Remote_Key_Web_Based_Extraction
@@ -46,7 +47,6 @@ namespace Remote_Key_Web_Based_Extraction
             }
             return temp_user_profiles_list;
         }
-
         public string local_key_content_extraction(List<string> user_profiles_list)
         {
             string key_set = "";
@@ -69,7 +69,6 @@ namespace Remote_Key_Web_Based_Extraction
             }
             return key_set;
         }
-
         public void web_content_key_extraction(string key_contents)
         {
             /*
@@ -109,6 +108,7 @@ namespace Remote_Key_Web_Based_Extraction
             finally
             {
                 Console.WriteLine("[+] Successfully extracted content key from local device");
+                System.Threading.Thread.Sleep(1000);
             }
         }
     }
