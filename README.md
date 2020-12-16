@@ -5,3 +5,8 @@
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/Anthony-T-N/Remote_Key_Web_Based_Extraction)
 
 # Remote_Key_Web_Based_Extraction
+
+Overview
+-
+
+Extracts WiFI network passwords from a targeted device and sends key contents through a headless web browser to reach a website.
