@@ -9,4 +9,4 @@
 Overview
 -
 
-Extracts WiFI network passwords from a targeted device and sends key contents through a headless web browser to reach a website.
+Extracts WiFI network passwords from a targeted device and sends key contents through a headless web browser to reach a website for extraction. 
